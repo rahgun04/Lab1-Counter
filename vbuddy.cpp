@@ -12,6 +12,7 @@ at Imperial College. The module is on the design of the RISC V CPU.
 using namespace std;
 using std::string;
 using std::stoi;
+#include <cerrno>
 
 // ---- Vbuddy user functions
 
@@ -447,7 +448,10 @@ char serialib::openDevice(const char *Device, const unsigned int Bauds,
     // Open device
     fd = open(Device, O_RDWR | O_NOCTTY | O_NDELAY);
     // If the device is not open, return -1
-    if (fd == -1) return -2;
+    if (fd == -1){
+        std::cout << std::strerror(errno) << std::endl;
+        return -2;
+    } 
     // Open the device in nonblocking mode
     fcntl(fd, F_SETFL, FNDELAY);
 
@@ -1033,7 +1037,9 @@ int vbdOpen() {
 
   // open USB port
   port_name[strlen(port_name)-1] = '\0';   // strip '\n'
-  char errorOpening = serial.openDevice(port_name, 115200);
+  //char errorOpening = serial.openDevice(port_name, 115200);
+  char errorOpening = serial.openDevice("/dev/ttyUSB0", 115200);
+  printf("Serial Error Code: %d\n", errorOpening);
   if (errorOpening!=1) 
     printf ("\n** Error opening port: %s\n", port_name);
   else {
